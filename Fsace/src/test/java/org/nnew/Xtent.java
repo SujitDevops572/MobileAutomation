@@ -13,6 +13,12 @@ public class Xtent {
 		System.out.println("MAngo!!!");
 		WebDriver driver = new ChromeDriver();
 		driver.get("https://www.youtube.com/");
+		 try {
+		        Thread.sleep(5000);
+		        System.out.println("HEllo!!!!!!!!!!!!!!!!!!!!!");
+		    } catch (InterruptedException e) {
+		        e.printStackTrace();
+		    }
 		
 	}
 	
