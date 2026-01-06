@@ -8,8 +8,10 @@ import java.net.URL;
 
 public class AppiumTest {
 
-    
-    public static void main(String[] args) throws Exception {
+
+    @Test
+    public void launchApp() throws Exception {
+
 
     	UiAutomator2Options options = new UiAutomator2Options()
     	        .setDeviceName("RZCW8253AJR")
