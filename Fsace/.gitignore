@@ -1,0 +1,9 @@
+# Eclipse workspace files
+/.metadata/
+*.log
+/.classpath
+/.project
+/.settings/
+
+# Maven target folder
+/target/
