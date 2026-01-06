@@ -8,6 +8,7 @@ public class Xtent {
 	void apple() {
 		
 		System.out.println("APple");
+		System.out.println("MAngo!!!");
 		
 	}
 	
