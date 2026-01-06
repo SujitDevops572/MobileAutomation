@@ -3,6 +3,11 @@
 .project
 .settings/
 bin/
+/target/
+/bin/
+*.class
+*.log
+
 
 # Build output
 target/
