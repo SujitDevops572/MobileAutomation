@@ -17,7 +17,7 @@ public class Xtent {
 	
 	    
 	@Test
-	void apple() {
+	void apple() throws InterruptedException {
 		
 		System.out.println("APple");
 		System.out.println("MAngo!!!");
@@ -37,6 +37,13 @@ public class Xtent {
 		 ExtentTest test = extent.createTest("Check the Credit Value Option in Client User List");
 
 		 test.info("Test started");
+
+		 System.out.println("Wait starts!!!!!!");
+		 
+		 Thread.sleep(5000);
+		 
+		 
+		 
 		 test.pass("Test passed successfully");
 
 		 extent.flush();
