@@ -1,0 +1,83 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: 'Test Pool'
+  demands:
+    - agent.name -equals HiveInt
+
+variables:
+  DOTNET_VERSION: '8.0.x'
+  TEST_RESULTS_DIR: 'TestResults'
+  SCREENSHOT_DIR: 'Screenshots'
+  HEADLESS: 'true'   # Set false for full browser mode
+
+steps:
+
+# ------------------------------------------------------
+# Install .NET SDK (if not already installed on agent)
+# ------------------------------------------------------
+- task: UseDotNet@2
+  displayName: "Install .NET SDK"
+  inputs:
+    packageType: 'sdk'
+    version: $(DOTNET_VERSION)
+
+# ------------------------------------------------------
+# Checkout repository
+# ------------------------------------------------------
+- checkout: self
+  displayName: "Checkout repository"
+
+# ------------------------------------------------------
+# Restore NuGet packages
+# ------------------------------------------------------
+- script: |
+    dotnet restore
+  displayName: "dotnet restore"
+
+# ------------------------------------------------------
+# Create test output folders
+# ------------------------------------------------------
+- powershell: |
+    New-Item -ItemType Directory -Force -Path $(TEST_RESULTS_DIR) | Out-Null
+    New-Item -ItemType Directory -Force -Path $(SCREENSHOT_DIR) | Out-Null
+  displayName: "Create result folders"
+
+# ------------------------------------------------------
+# Run Selenium UI Tests
+# ------------------------------------------------------
+- powershell: |
+    Write-Host "==== Running Selenium UI Tests on self-hosted agent ===="
+
+    # Pass HEADLESS value to your test code
+    $env:HEADLESS = "$(HEADLESS)"
+
+    dotnet test `
+      --logger "trx;LogFileName=testresults.trx" `
+      --results-directory $(TEST_RESULTS_DIR) `
+      --verbosity normal
+  displayName: "Run dotnet test"
+
+# ------------------------------------------------------
+# Publish TRX Test Results
+# ------------------------------------------------------
+- task: PublishTestResults@2
+  displayName: "Publish Test Results"
+  inputs:
+    testResultsFormat: "VSTest"
+    testResultsFiles: "$(TEST_RESULTS_DIR)/**/*.trx"
+    mergeTestResults: true
+    failTaskOnFailedTests: true
+
+# ------------------------------------------------------
+# Publish Screenshots (Visual Test Output)
+# ------------------------------------------------------
+- task: PublishPipelineArtifact@1
+  displayName: "Publish Screenshots"
+  inputs:
+    targetPath: "$(SCREENSHOT_DIR)"
+    artifact: "screenshots"
+    publishLocation: "pipeline"

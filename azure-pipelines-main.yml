@@ -1,0 +1,28 @@
+pool:
+  name: Test Pool
+  demands:
+    - agent.name -equals HiveInt
+
+trigger:
+  branches:
+    include:
+      - dev
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+# 1️⃣ Restore NuGet packages
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '**/*.sln'
+
+# 2️⃣ Build the solution
+- task: VSBuild@1
+  inputs:
+    solution: '**/*.sln'
+    msbuildArgs: '/p:Configuration=$(buildConfiguration)'
+    platform: 'Any CPU'
+    configuration: '$(buildConfiguration)'

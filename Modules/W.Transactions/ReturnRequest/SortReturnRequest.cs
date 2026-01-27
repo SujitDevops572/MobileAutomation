@@ -1,0 +1,147 @@
+﻿using AventStack.ExtentReports;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
+using System.Diagnostics;
+using VMS_Phase1PortalAT.Modules.Authentication;
+using VMS_Phase1PortalAT.utls;
+using VMS_Phase1PortalAT.utls.datas;
+using VMS_Phase1PortalAT.utls.utilMethods;
+
+namespace VMS_Phase1PortalAT.Modules.W.Transactions.ReturnRequest
+{
+    [TestClass]
+    public class SortReturnRequest
+    {
+        private Stopwatch stopwatch;
+        private string expectedStatus;
+        private string errorMessage;
+        private string description;
+        public required TestContext TestContext { get; set; }
+        IWebDriver driver;
+        setupData setupDatas = new setupData();
+        WriteResultToCSV testResult = new WriteResultToCSV();
+        private static ExtentReports extent;
+        private static ExtentTest test;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            stopwatch = new Stopwatch();
+            stopwatch.Start();
+            errorMessage = string.Empty;
+            extent = ExtentManager.GetInstance();
+
+        }
+
+        [TestMethod]
+        public void SortReturnRequestSuccess()
+        {
+            expectedStatus = "Passed";
+            
+            description = "Test case to sort Return Request";
+            Login LoginSuccess = new Login();
+            driver = LoginSuccess.getdriver();
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(40));
+
+            try
+            {
+                Console.WriteLine("Logging in...");
+
+                // Ensure login completes and the menu is present
+                wait.Until(driver =>
+                {
+                    LoginSuccess.LoginSuccessCompanyAdmin();
+                    return driver.FindElements(By.Id("menuItem-W. Transactions")).Any();
+                });
+
+                Console.WriteLine("Login successful and main menu is visible.");
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.InnerException?.Message ?? ex.Message;
+                test.Fail("Login failed: " + errorMessage);
+                throw;
+            }
+            try
+            {
+
+                SortSuccess.Sort(driver, "menuItem-W. Transactions", "menuItem-W. Transactions3", "Return Request");
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMessage = ex.InnerException.Message;
+                    test.Fail(errorMessage);
+                }
+                throw;
+            }
+        }
+
+       
+
+
+        [TestMethod]
+        public void SortReturnRequestFailure()
+        {
+            expectedStatus = "Failed";
+            
+            description = "Test case to validate sort functionality in Return Request module";
+
+            Login LoginSuccess = new Login();
+            driver = LoginSuccess.getdriver();
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(40));
+
+            try
+            {
+                Console.WriteLine("Logging in...");
+
+                // Ensure login completes and the menu is present
+                wait.Until(driver =>
+                {
+                    LoginSuccess.LoginSuccessCompanyAdmin();
+                    return driver.FindElements(By.Id("menuItem-W. Transactions")).Any();
+                });
+
+                Console.WriteLine("Login successful and main menu is visible.");
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.InnerException?.Message ?? ex.Message;
+                test.Fail("Login failed: " + errorMessage);
+                throw;
+            }
+            try
+            {
+                SortFailure.Sort(driver, "menuItem-W. Transactions", "menuItem-W. Transactions3", "Return Request");
+
+               
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.InnerException?.Message ?? ex.Message;
+                test.Fail("Test failed with exception: " + errorMessage);
+                Console.WriteLine("Test failed with exception: " + errorMessage);
+                throw;
+            }
+        }
+
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            stopwatch.Stop();
+            TimeSpan timeTaken = stopwatch.Elapsed;
+            string formatedTime = $"{timeTaken.TotalSeconds:F2}";
+            driver.Quit();
+            testResult.WriteTestResults(TestContext, formatedTime, expectedStatus, errorMessage, description);
+            extent.Flush();
+        }
+
+    }
+}

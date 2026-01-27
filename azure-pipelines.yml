@@ -1,0 +1,48 @@
+trigger:
+  branches:
+    include:
+      - bhavya_automation   # make sure this matches your actual branch name
+
+<<<<<<< HEAD
+pool: Default
+=======
+pool:
+  name: Default   # for self-hosted agent
+>>>>>>> ffcab5a431c773db89c44145b282aa8d4d895891
+
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore NuGet Packages'
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Solution'
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+      arguments: '--configuration Release'
+
+  - task: VSTest@2
+    displayName: 'Run and Publish to Azure DevOps Test Plans'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: |
+        **/*Tests.dll
+        !**/*TestAdapter.dll
+        !**/obj/**
+      searchFolder: '$(Build.SourcesDirectory)'
+      diagnosticsEnabled: true
+      publishRunAttachments: true
+      testPlan: '4301'
+      testSuite: '4402'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '**/*.trx'
+      searchFolder: '$(Build.SourcesDirectory)'
+      mergeTestResults: true
+      failTaskOnFailedTests: false
